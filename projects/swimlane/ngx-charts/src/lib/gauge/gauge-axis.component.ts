@@ -136,8 +136,6 @@ export class GaugeAxisComponent implements OnChanges {
           `
       });
     }
-    console.log(ticks);
-
     return ticks;
   }
 
