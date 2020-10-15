@@ -61,6 +61,7 @@ import { ColorHelper } from '../common/color.helper';
           [valueScale]="valueScale"
           [startAngle]="startAngle"
           [tickFormatting]="axisTickFormatting"
+          [tickValues]="tickValues"
         ></svg:g>
 
         <svg:text
@@ -100,6 +101,7 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
   @Input() valueFormatting: (value: any) => string;
   @Input() showText: boolean = true;
   @Input() cornerRadiusScale: number = 0;
+  @Input() tickValues: number[];
 
   // Specify margins
   @Input() margin: any[];
