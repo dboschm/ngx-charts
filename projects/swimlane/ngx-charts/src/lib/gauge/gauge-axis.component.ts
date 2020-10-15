@@ -27,6 +27,7 @@ import { line } from 'd3-shape';
 export class GaugeAxisComponent implements OnChanges {
   @Input() bigSegments: any;
   @Input() smallSegments: any;
+  @Input() tickValues: number[];
   @Input() min: any;
   @Input() max: any;
   @Input() angleSpan: number;
@@ -34,7 +35,8 @@ export class GaugeAxisComponent implements OnChanges {
   @Input() radius: any;
   @Input() valueScale: any;
   @Input() tickFormatting: any;
-
+  @Input() tickLength: number = 10;
+  @Input() axisGap: number = 10;
   ticks: any;
   rotationAngle: number;
   rotate: string = '';
@@ -46,20 +48,23 @@ export class GaugeAxisComponent implements OnChanges {
   update(): void {
     this.rotationAngle = -90 + this.startAngle;
     this.rotate = `rotate(${this.rotationAngle})`;
-    this.ticks = this.getTicks();
+    if (this.tickValues?.length > 0) {
+      this.ticks = this.getCustomTicks();
+    } else {
+      this.ticks = this.getTicks();
+    }
   }
 
   getTicks(): any {
     const bigTickSegment = this.angleSpan / this.bigSegments;
     const smallTickSegment = bigTickSegment / this.smallSegments;
-    const tickLength = 20;
     const ticks = {
       big: [],
       small: []
     };
 
-    const startDistance = this.radius + 10;
-    const textDist = startDistance + tickLength + 10;
+    const startDistance = this.radius + this.axisGap;
+    const textDist = startDistance + this.tickLength + this.axisGap;
 
     for (let i = 0; i <= this.bigSegments; i++) {
       const angleDeg = i * bigTickSegment;
@@ -78,7 +83,7 @@ export class GaugeAxisComponent implements OnChanges {
           text = this.tickFormatting(text);
         }
         ticks.big.push({
-          line: this.getTickPath(startDistance, tickLength, angle),
+          line: this.getTickPath(startDistance, this.tickLength, angle),
           textAnchor,
           text,
           textTransform: `
@@ -96,10 +101,42 @@ export class GaugeAxisComponent implements OnChanges {
         const smallAngle = (smallAngleDeg * Math.PI) / 180;
 
         ticks.small.push({
-          line: this.getTickPath(startDistance, tickLength / 2, smallAngle)
+          line: this.getTickPath(startDistance, this.tickLength / 2, smallAngle)
         });
       }
     }
+
+    return ticks;
+  }
+
+  getCustomTicks(): any {
+    const startDistance = this.radius + this.axisGap;
+    const textDist = startDistance + this.tickLength + this.axisGap;
+    const ticks = {
+      big: [],
+      small: []
+    };
+
+    for (let i = 0; i < this.tickValues.length; i++) {
+
+      const angleDeg = this.valueScale(this.tickValues[i]);
+      const angle = (angleDeg * Math.PI) / 180;
+      const textAnchor = this.getTextAnchor(angleDeg);
+      let text = Number.parseFloat(this.valueScale.invert(angleDeg).toString()).toLocaleString();
+
+      if (this.tickFormatting) {
+        text = this.tickFormatting(text);
+      }
+      ticks.big.push({
+        line: this.getTickPath(startDistance, this.tickLength, angle),
+        textAnchor,
+        text,
+        textTransform: `
+            translate(${textDist * Math.cos(angle)}, ${textDist * Math.sin(angle)}) rotate(${-this.rotationAngle})
+          `
+      });
+    }
+    console.log(ticks);
 
     return ticks;
   }

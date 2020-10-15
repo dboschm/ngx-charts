@@ -99,6 +99,7 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
   @Input() tooltipDisabled: boolean = false;
   @Input() valueFormatting: (value: any) => string;
   @Input() showText: boolean = true;
+  @Input() cornerRadiusScale: number = 0;
 
   // Specify margins
   @Input() margin: any[];
@@ -189,7 +190,7 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
     const radiusPerArc = Math.min(availableRadius / this.results.length, 10);
     const arcWidth = radiusPerArc * 0.7;
     this.textRadius = this.outerRadius - this.results.length * radiusPerArc;
-    this.cornerRadius = Math.floor(arcWidth / 2);
+    this.cornerRadius = Math.floor(arcWidth / 2) * this.cornerRadiusScale;
 
     let i = 0;
     for (const d of this.results) {
